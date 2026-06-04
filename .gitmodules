@@ -1,0 +1,6 @@
+[submodule "CAREER_DOT_ZIP_BACKEND"]
+	path = CAREER_DOT_ZIP_BACKEND
+	url = https://github.com/SKN26-3RD-TRIP-ZIP/CAREER_DOT_ZIP_BACKEND.git
+[submodule "CAREER_DOT_ZIP_FRONTEND"]
+	path = CAREER_DOT_ZIP_FRONTEND
+	url = https://github.com/SKN26-3RD-TRIP-ZIP/CAREER_DOT_ZIP_FRONTEND.git
