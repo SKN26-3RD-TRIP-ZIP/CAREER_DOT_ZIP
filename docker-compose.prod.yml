@@ -1,0 +1,35 @@
+services:
+  backend:
+    build:
+      context: ./CAREER_DOT_ZIP_BACKEND
+      dockerfile: Dockerfile
+    container_name: career_zip_backend
+    restart: unless-stopped
+    env_file:
+      - ./CAREER_DOT_ZIP_BACKEND/.env
+    volumes:
+      - media_data:/app/media
+      - static_data:/app/staticfiles
+    expose:
+      - "8000"
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             python manage.py collectstatic --noinput &&
+             gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 120"
+
+  frontend:
+    build:
+      context: ./CAREER_DOT_ZIP_FRONTEND
+      dockerfile: Dockerfile.prod
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL}
+    container_name: career_zip_frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  media_data:
+  static_data:
