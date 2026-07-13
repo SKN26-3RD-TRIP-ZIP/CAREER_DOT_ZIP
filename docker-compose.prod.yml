@@ -1,28 +1,35 @@
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: career_zip_redis
+    restart: unless-stopped
+    expose:
+      - "6379"
+
   backend:
     build:
       context: ./CAREER_DOT_ZIP_BACKEND
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     container_name: career_zip_backend
     restart: unless-stopped
     env_file:
       - ./CAREER_DOT_ZIP_BACKEND/.env
+    environment:
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      - redis
     volumes:
       - media_data:/app/media
       - static_data:/app/staticfiles
     expose:
       - "8000"
-    command: >
-      sh -c "python manage.py migrate --noinput &&
-             python manage.py collectstatic --noinput &&
-             gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 120"
 
   frontend:
     build:
       context: ./CAREER_DOT_ZIP_FRONTEND
       dockerfile: Dockerfile.prod
       args:
-        VITE_API_BASE_URL: ${VITE_API_BASE_URL}
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api/v1}
     container_name: career_zip_frontend
     restart: unless-stopped
     ports:
