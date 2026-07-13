@@ -1,0 +1,168 @@
+name: Build and deploy
+
+# 이 워크플로는 루트 저장소의 main을 기준으로 동작한다.
+# 프론트/백엔드는 Git submodule이므로 각 저장소에만 push해서는 실행되지 않는다.
+# 서브모듈 커밋 포인터를 루트 저장소에 커밋하고 main에 push해야 새 코드가 배포된다.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build production images
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      owner: ${{ steps.release.outputs.owner }}
+      tag: ${{ steps.release.outputs.tag }}
+    steps:
+      # 루트가 가리키는 정확한 프론트/백엔드 커밋을 함께 내려받는다.
+      # 따라서 두 이미지는 한 번의 배포에서 서로 호환되는 동일한 루트 리비전으로 묶인다.
+      - name: Check out repository and submodules
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Prepare image names and immutable tag
+        id: release
+        shell: bash
+        run: |
+          echo "owner=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+          echo "tag=${GITHUB_SHA::12}" >> "$GITHUB_OUTPUT"
+
+      - name: Validate production compose manifest
+        shell: bash
+        run: |
+          touch CAREER_DOT_ZIP_BACKEND/.env
+          docker compose -f docker-compose.prod.yml config --quiet
+          rm CAREER_DOT_ZIP_BACKEND/.env
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push backend image
+        uses: docker/build-push-action@v7
+        with:
+          context: ./CAREER_DOT_ZIP_BACKEND
+          file: ./CAREER_DOT_ZIP_BACKEND/Dockerfile.prod
+          push: ${{ github.event_name != 'pull_request' }}
+          # SHA 태그는 배포 버전을 고정/롤백할 때 사용하고 latest는 최신 이미지를 표시한다.
+          # 실제 EC2 배포에는 latest가 아니라 SHA 태그를 주입한다.
+          tags: |
+            ghcr.io/${{ steps.release.outputs.owner }}/careerzip-backend:${{ steps.release.outputs.tag }}
+            ghcr.io/${{ steps.release.outputs.owner }}/careerzip-backend:latest
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,mode=max,scope=backend
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v7
+        with:
+          context: ./CAREER_DOT_ZIP_FRONTEND
+          file: ./CAREER_DOT_ZIP_FRONTEND/Dockerfile.prod
+          push: ${{ github.event_name != 'pull_request' }}
+          # Vite 환경변수는 런타임이 아니라 이미지 빌드 시 정적 파일에 반영된다.
+          build-args: |
+            VITE_API_BASE_URL=${{ vars.VITE_API_BASE_URL || '/api/v1' }}
+          tags: |
+            ghcr.io/${{ steps.release.outputs.owner }}/careerzip-frontend:${{ steps.release.outputs.tag }}
+            ghcr.io/${{ steps.release.outputs.owner }}/careerzip-frontend:latest
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,mode=max,scope=frontend
+
+  deploy:
+    name: Pull images on EC2 and deploy
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Check out deployment manifest
+        uses: actions/checkout@v6
+
+      # compose manifest만 동기화한다. 애플리케이션 소스와 서브모듈을 EC2에서 pull/build하지 않는다.
+      # 기존 .env, 인증서, 호스트 nginx 설정, Docker volume과 업로드 데이터는 건드리지 않는다.
+      - name: Upload production compose manifest
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: docker-compose.prod.yml
+          target: ~/CAREER_DOT_ZIP
+          overwrite: true
+
+      - name: Pull and restart services on EC2
+        uses: appleboy/ssh-action@v1
+        env:
+          BACKEND_IMAGE: ghcr.io/${{ needs.build.outputs.owner }}/careerzip-backend
+          FRONTEND_IMAGE: ghcr.io/${{ needs.build.outputs.owner }}/careerzip-frontend
+          RELEASE_TAG: ${{ needs.build.outputs.tag }}
+          GHCR_USERNAME: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PUBLIC_BASE_URL: ${{ vars.PUBLIC_BASE_URL }}
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          envs: BACKEND_IMAGE,FRONTEND_IMAGE,RELEASE_TAG,GHCR_USERNAME,GHCR_TOKEN,PUBLIC_BASE_URL
+          script: |
+            set -eu
+            cd ~/CAREER_DOT_ZIP
+
+            # 운영 비밀값은 GitHub에서 덮어쓰지 않고 EC2에 이미 존재하는 .env를 그대로 사용한다.
+            test -f CAREER_DOT_ZIP_BACKEND/.env
+            # GITHUB_TOKEN은 이 배포 실행 동안만 GHCR pull 인증에 사용된다.
+            printf '%s' "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
+            trap 'docker logout ghcr.io >/dev/null 2>&1 || true' EXIT
+
+            export BACKEND_IMAGE FRONTEND_IMAGE
+            export BACKEND_TAG="$RELEASE_TAG"
+            export FRONTEND_TAG="$RELEASE_TAG"
+
+            docker compose -f docker-compose.prod.yml config --quiet
+            # EC2에서는 docker build를 실행하지 않는다. Actions가 만든 이미지만 내려받는다.
+            docker compose -f docker-compose.prod.yml pull backend frontend redis
+            # 여러 백엔드 컨테이너가 동시에 migrate하지 않도록 배포마다 일회성 컨테이너에서 한 번만 수행한다.
+            docker compose -f docker-compose.prod.yml run --rm -e RUN_MIGRATIONS=1 backend true
+            docker compose -f docker-compose.prod.yml up -d --no-build --remove-orphans
+
+            for attempt in $(seq 1 12); do
+              if curl -fsS http://127.0.0.1/healthz >/dev/null \
+                && curl -fsS http://127.0.0.1/api/v1/health/live >/dev/null; then
+                break
+              fi
+              if [ "$attempt" -eq 12 ]; then
+                docker compose -f docker-compose.prod.yml ps
+                docker compose -f docker-compose.prod.yml logs --tail=100 backend frontend
+                exit 1
+              fi
+              sleep 5
+            done
+
+            docker compose -f docker-compose.prod.yml exec -T frontend nginx -t
+            # PUBLIC_BASE_URL이 설정된 경우 기존 HTTPS 도메인까지 실제 외부 경로로 확인한다.
+            if [ -n "${PUBLIC_BASE_URL:-}" ]; then
+              curl -fsS "${PUBLIC_BASE_URL%/}/healthz" >/dev/null
+            fi
+
+            docker image prune -f

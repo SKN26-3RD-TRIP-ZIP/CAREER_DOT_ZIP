@@ -7,15 +7,17 @@ services:
       - "6379"
 
   backend:
-    build:
-      context: ./CAREER_DOT_ZIP_BACKEND
-      dockerfile: Dockerfile.prod
+    # 이미지는 GitHub Actions에서 빌드한다. EC2 compose에는 build 항목을 두지 않는다.
+    # 워크플로는 latest 대신 커밋 SHA를 BACKEND_TAG로 주입해 배포 버전을 고정한다.
+    image: ${BACKEND_IMAGE:-ghcr.io/skn26-3rd-trip-zip/careerzip-backend}:${BACKEND_TAG:-latest}
     container_name: career_zip_backend
     restart: unless-stopped
     env_file:
+      # 이 파일은 EC2에만 존재하며 Actions가 업로드하거나 내용을 변경하지 않는다.
       - ./CAREER_DOT_ZIP_BACKEND/.env
     environment:
       REDIS_URL: redis://redis:6379/0
+      RUN_MIGRATIONS: "0"
     depends_on:
       - redis
     volumes:
@@ -25,11 +27,9 @@ services:
       - "8000"
 
   frontend:
-    build:
-      context: ./CAREER_DOT_ZIP_FRONTEND
-      dockerfile: Dockerfile.prod
-      args:
-        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api/v1}
+    # nginx 설정과 Vite 결과물까지 포함된 완성 이미지를 GHCR에서 pull한다.
+    # 호스트의 HTTPS 인증서/nginx 설정은 별도이므로 이 서비스가 덮어쓰지 않는다.
+    image: ${FRONTEND_IMAGE:-ghcr.io/skn26-3rd-trip-zip/careerzip-frontend}:${FRONTEND_TAG:-latest}
     container_name: career_zip_frontend
     restart: unless-stopped
     ports:
