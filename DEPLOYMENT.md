@@ -26,11 +26,13 @@ Workflow permissions가 패키지 쓰기를 허용해야 합니다.
 - Docker와 Docker Compose plugin이 설치되어 있어야 합니다.
 - 배포 디렉터리는 `~/CAREER_DOT_ZIP`입니다.
 - 기존 운영 환경 파일은 `~/CAREER_DOT_ZIP/CAREER_DOT_ZIP_BACKEND/.env`에 둡니다.
-- 인증서와 호스트 nginx 설정은 기존 위치를 그대로 사용합니다.
+- 기존 Let's Encrypt 인증서는 EC2의 `/etc/letsencrypt`에 그대로 보관하고,
+  프론트 nginx 컨테이너에 읽기 전용으로 마운트합니다.
 
 배포 시 Actions는 루트의 `docker-compose.prod.yml`만 업로드합니다. `.env`, 인증서,
-호스트 nginx 설정, Docker volume은 업로드하거나 삭제하지 않습니다. 프론트 이미지
-내부 nginx 설정도 기존 `CAREER_DOT_ZIP_FRONTEND/nginx.conf`를 그대로 빌드합니다.
+Docker volume은 업로드하거나 삭제하지 않습니다. 프론트 이미지는 저장소의
+`CAREER_DOT_ZIP_FRONTEND/nginx.conf`를 사용하고, 호스트 인증서 파일은 이미지에
+포함하지 않은 채 `/etc/letsencrypt:ro`로 연결합니다.
 
 `main` Pull Request에서는 두 이미지를 빌드해 Dockerfile을 검증하지만 푸시나 EC2
 배포는 하지 않습니다. `main` push 또는 수동 실행에서는 커밋 SHA 태그와 `latest`
