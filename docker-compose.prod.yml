@@ -18,6 +18,13 @@ services:
     environment:
       REDIS_URL: redis://redis:6379/0
       RUN_MIGRATIONS: "0"
+      # Keep one Python process on the current small EC2 instance; gthread
+      # still serves concurrent I/O requests without duplicating AI modules.
+      GUNICORN_WORKERS: "1"
+      GUNICORN_THREADS: "4"
+      # Loading torch/sentence-transformers can OOM this instance. The report
+      # keeps using LLM scores and treats SBERT as an optional metric.
+      SBERT_ENABLED: "false"
     depends_on:
       - redis
     volumes:
