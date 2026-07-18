@@ -470,7 +470,7 @@ git push origin main
 | 김지윤 | 작성 예정 | 작성 예정 | 작성 예정 |
 | 박소윤 | STAR-L, 5 Whys, Start–Stop–Continue | PM과 Backend·DB 업무를 수행하며 기능 구현과 검증 완료를 구분하고, 조기 E2E 통합의 중요성을 배웠습니다. | [회고 보기](./docs/retrospectives/park-soyoon.md) |
 | 박은지 | 작성 예정 | 작성 예정 | 작성 예정 |
-| 위희찬 | 작성 예정 | 작성 예정 | 작성 예정 |
+| 위희찬 | STAR-L, 5 Whys, Start–Stop–Continue | 음성 면접 파이프라인을 구현하고 운영 장애와 통합 오류를 해결하며, 로컬 동작을 넘어 실제 환경의 안정성과 전체 사용자 흐름을 검증하는 기준을 배웠습니다. | [회고 보기](./docs/retrospectives/wi-heechan.md) |
 | 홍지윤 | KPT | AI 기능을 작은 단위로 분리하고 전체 흐름을 확인했으며, 코드 존재 여부보다 실제 호출과 검증 여부가 중요하다는 점을 배웠습니다. | [회고 보기](./docs/retrospectives/hong-jiyoon.md) |
 <div align="center">
 
