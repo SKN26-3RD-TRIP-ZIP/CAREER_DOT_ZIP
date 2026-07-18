@@ -97,15 +97,15 @@ flowchart LR
 
 # 3. 팀 소개
 
-| 이름 | 역할 | 담당 업무 |
-|---|---|---|
-| 김이선 | 팀원 | 관리자 페이지 기능 구현 / 관리자 화면 구현 |
-| 김지윤 | 팀원 | 면접 흐름 설계 / 답변 판단·꼬리질문 로직 구현 |
-| 박소윤 | PM / Backend·Frontend·DB | 프로젝트 기획·일정·API 명세·QA 총괄<br>인증·사용자 입력 API 및 화면 연동, DB 설계·데이터 전처리<br>마이페이지·포인트·가드레일 고도화, AWS 배포 설계 |
-| 박은지 | 팀원 | 면접 평가 기능 구현 / 리포트 생성 기능 및 화면 구현 |
-| 위희찬 | 팀원 | STT·TTS 면접 세션 구현 / 배포·테스트 및 UI 개선 |
-| 홍지윤 | 팀원 | 문서 분석 기능 구현 / 예상 질문 생성 구현 |
-| 배현모 | 멘토 | 주제 선정 피드백 / 프로젝트 질의응답 및 방향성 자문 |
+| 캐릭터 | 이름 | 역할 | 담당 업무 | GitHub |
+|---|---|---|---|---|
+| <img src="./docs/images/members/kim-yiseon.png" width="96" alt="김이선 캐릭터"> | 김이선 | 팀원 | 관리자 페이지 기능 구현 / 관리자 화면 구현 | [GitHub](https://github.com/kysuniv-cyber) |
+| <img src="./docs/images/members/kim-jiyoun.png" width="96" alt="김지윤 캐릭터"> | 김지윤 | 팀원 | 면접 흐름 설계 / 답변 판단·꼬리질문 로직 구현 | [GitHub](https://github.com/JiyounKim-EllyKim) |
+| <img src="./docs/images/members/park-soyun.png" width="96" alt="박소윤 캐릭터"> | 박소윤 | PM / Backend·Frontend·DB | 프로젝트 기획·일정·API 명세·QA 총괄<br>인증·사용자 입력 API 및 화면 연동, DB 설계·데이터 전처리<br>마이페이지·포인트·가드레일 고도화, AWS 배포 설계 | [GitHub](https://github.com/parksoyun9084-cloud) |
+| <img src="./docs/images/members/park-eunji.png" width="96" alt="박은지 캐릭터"> | 박은지 | 팀원 | 면접 평가 기능 구현 / 리포트 생성 기능 및 화면 구현 | [GitHub](https://github.com/lo1f0306) |
+| <img src="./docs/images/members/wi-heechan.png" width="96" alt="위희찬 캐릭터"> | 위희찬 | 팀원 | STT·TTS 면접 세션 구현 / 배포·테스트 및 UI 개선 | [GitHub](https://github.com/dnlgmlcks) |
+| <img src="./docs/images/members/hong-jiyoon.png" width="96" alt="홍지윤 캐릭터"> | 홍지윤 | 팀원 | 문서 분석 기능 구현 / 예상 질문 생성 구현 | [GitHub](https://github.com/jyh-skn) |
+| - | 배현모 | 멘토 | 주제 선정 피드백 / 프로젝트 질의응답 및 방향성 자문 | - |
 
 ---
 
