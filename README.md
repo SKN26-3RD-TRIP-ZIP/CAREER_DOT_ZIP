@@ -105,7 +105,7 @@ flowchart LR
 | <img src="./docs/images/members/park-eunji.png" width="96" alt="박은지 캐릭터"> | 박은지 | 팀원 | 면접 평가 기능 구현 / 리포트 생성 기능 및 화면 구현 | [GitHub](https://github.com/lo1f0306) |
 | <img src="./docs/images/members/wi-heechan.png" width="96" alt="위희찬 캐릭터"> | 위희찬 | 팀원 | STT·TTS 면접 세션 구현 / 배포·테스트 및 UI 개선 | [GitHub](https://github.com/dnlgmlcks) |
 | <img src="./docs/images/members/hong-jiyoon.png" width="96" alt="홍지윤 캐릭터"> | 홍지윤 | 팀원 | 문서 분석 기능 구현 / 예상 질문 생성 구현 | [GitHub](https://github.com/jyh-skn) |
-| <img src="./docs/images/members/mentor.png" width="96" alt="배현모 멘토 사진"> | 배현모 | 멘토 | 주제 선정 피드백 / 프로젝트 질의응답 및 방향성 자문 | - |
+| <img src="./docs/images/members/mentor-profile.png" width="96" alt="배현모 멘토 사진"> | 배현모 | 멘토 | 주제 선정 피드백 / 프로젝트 질의응답 및 방향성 자문 | - |
 
 ---
 
