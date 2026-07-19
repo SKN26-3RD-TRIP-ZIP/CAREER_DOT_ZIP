@@ -105,7 +105,7 @@ flowchart LR
 | <img src="./docs/images/members/park-eunji.png" width="96" alt="박은지 캐릭터"> | 박은지 | 팀원 | 면접 평가 기능 구현 / 리포트 생성 기능 및 화면 구현 | [GitHub](https://github.com/lo1f0306) |
 | <img src="./docs/images/members/wi-heechan.png" width="96" alt="위희찬 캐릭터"> | 위희찬 | 팀원 | STT·TTS 면접 세션 구현 / 배포·테스트 및 UI 개선 | [GitHub](https://github.com/dnlgmlcks) |
 | <img src="./docs/images/members/hong-jiyoon.png" width="96" alt="홍지윤 캐릭터"> | 홍지윤 | 팀원 | 문서 분석 기능 구현 / 예상 질문 생성 구현 | [GitHub](https://github.com/jyh-skn) |
-| - | 배현모 | 멘토 | 주제 선정 피드백 / 프로젝트 질의응답 및 방향성 자문 | - |
+| <img src="./docs/images/members/mentor.png" width="96" alt="배현모 멘토 사진"> | 배현모 | 멘토 | 주제 선정 피드백 / 프로젝트 질의응답 및 방향성 자문 | - |
 
 ---
 
@@ -349,7 +349,7 @@ CAREER_DOT_ZIP/
 ## 1. Clone
 
 ```bash
-git clone --recurse-submodules <MAIN_REPOSITORY_URL>
+git clone --recurse-submodules https://github.com/SKN26-3RD-TRIP-ZIP/CAREER_DOT_ZIP.git
 cd CAREER_DOT_ZIP
 ```
 
@@ -436,10 +436,13 @@ docker compose -f docker-compose.prod.yml down
 각 Submodule에서 변경 사항을 먼저 Commit·Push한 뒤, 메인 저장소에서 변경된 Commit 참조를 반영합니다.
 
 ```bash
+git switch -c chore/update-submodule-references
 git add CAREER_DOT_ZIP_BACKEND CAREER_DOT_ZIP_FRONTEND
 git commit -m "chore: update submodule references"
-git push origin main
+git push -u origin chore/update-submodule-references
 ```
+
+Push 후 Pull Request를 생성해 `main` 브랜치에 반영합니다.
 
 ---
 
@@ -475,7 +478,7 @@ git push origin main
 | 김이선 | STAR-L, 5 Whys | 어드민 기능을 구현하며 기능 완료 기준에 성능과 유지보수성 검토가 포함되어야 한다는 점을 배웠습니다. | [회고 보기](./docs/retrospectives/kim-yiseon.md) |
 | 김지윤 | 성과·기여·성장, 5 Whys | AI 면접 흐름을 구현하며 개별 기능의 완성보다 기능 간 연결과 통합 안정화가 중요하다는 점을 배웠습니다. | [회고 보기](./docs/retrospectives/kim-jiyoun.md) |
 | 박소윤 | STAR-L, 5 Whys, Start–Stop–Continue | PM과 Backend·Frontend·DB 업무를 수행하며 기능 구현과 검증 완료를 구분하고, 조기 E2E 통합의 중요성을 배웠습니다. | [회고 보기](./docs/retrospectives/park-soyun.md) |
-| 박은지 | 작성 예정 | 작성 예정 | 작성 예정 |
+| 박은지 | KPT | 평가·리포트 파이프라인을 구현하며 AI 기능의 완성도는 잘 될 때의 품질이 아니라 실패할 때의 동작으로 결정된다는 점을 배웠습니다. | [회고 보기](./docs/retrospectives/park-eunji.md) |
 | 위희찬 | STAR-L, 5 Whys, Start–Stop–Continue | 음성 면접 파이프라인을 구현하고 운영 장애와 통합 오류를 해결하며, 로컬 동작을 넘어 실제 환경의 안정성과 전체 사용자 흐름을 검증하는 기준을 배웠습니다. | [회고 보기](./docs/retrospectives/wi-heechan.md) |
 | 홍지윤 | KPT | AI 기능을 작은 단위로 분리하고 전체 흐름을 확인했으며, 코드 존재 여부보다 실제 호출과 검증 여부가 중요하다는 점을 배웠습니다. | [회고 보기](./docs/retrospectives/hong-jiyoon.md) |
 
